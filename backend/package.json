@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/rouri404/equilibrium#readme",
   "dependencies": {
-    "@apollo/server": "^5.4.0",
+    "@apollo/server": "^4.13.0",
     "body-parser": "^2.2.2",
     "cors": "^2.8.6",
     "dotenv": "^17.2.4",
@@ -34,8 +34,8 @@
     "pg": "^8.18.0"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.19.6",
     "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
     "@types/node": "^25.2.2",
     "nodemon": "^3.1.11",
     "prisma": "^6.19.2",
