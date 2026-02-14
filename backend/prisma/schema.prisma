@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Portfolio {
+  id          String   @id @default(uuid())
+  name        String
+  clientId    String
+  threshold   Float    @default(0.05) // 5% drift threshold
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  positions   Position[]
+  strategies  Strategy[]
+}
+
+model Position {
+  id          String   @id @default(uuid())
+  portfolioId String
+  asset       String   // ticker (ex: AAPL, BTC)
+  quantity    Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+}
+
+model Strategy {
+  id          String   @id @default(uuid())
+  portfolioId String
+  asset       String
+  targetWeight Float   // 0.0 a 1.0 (ex: 0.3 = 30%)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+}
+
+model PriceEvent {
+  id        String   @id @default(uuid())
+  asset     String
+  price     Float
+  timestamp DateTime @default(now())
+}

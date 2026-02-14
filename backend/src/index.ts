@@ -7,6 +7,10 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 
+import { redis } from './config/redis.js';
+import { prisma } from './config/database.js';
+import { worker } from './queue/worker.js';
+
 dotenv.config({ path: '../.env' });
 
 const typeDefs = `#graphql
@@ -55,7 +59,9 @@ async function startServer() {
   🚀 EQ Rebalancer Engine Ready
   --------------------------------------
   📡 Endpoint:  http://localhost:${PORT}/graphql
-  ⭐️ Status:    WAITING FOR EVENTS
+  🔌 Redis:     Connected
+  🗄️  Postgres: Connected
+  ⚙️  Worker:   Running
   --------------------------------------
   `);
 }
