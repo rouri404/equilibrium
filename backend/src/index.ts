@@ -7,23 +7,13 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 
-import { redis } from './config/redis.js';
-import { prisma } from './config/database.js';
-import { worker } from './queue/worker.js';
+import { prisma } from './config/database';
+import { worker } from './queue/worker';
+
+import { typeDefs } from './graphql/typeDefs';
+import { resolvers } from './graphql/resolvers';
 
 dotenv.config({ path: '../.env' });
-
-const typeDefs = `#graphql
-  type Query {
-    systemStatus: String
-  }
-`;
-
-const resolvers = {
-  Query: {
-    systemStatus: () => 'EQ System: Online & Stable 🚀',
-  },
-};
 
 interface MyContext {
   token?: String;

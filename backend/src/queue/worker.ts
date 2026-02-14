@@ -1,6 +1,6 @@
 import { Worker, Job } from 'bullmq';
-import { prisma } from '../config/database.js';
-import { PriceEventJob } from './producer.js';
+import { prisma } from '../config/database';
+import { PriceEventJob } from './producer';
 
 const connection = {
   host: process.env.REDIS_HOST || 'localhost',
