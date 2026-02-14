@@ -1,8 +1,5 @@
 # Equilibrium Rebalancer
 
-> [!NOTE]
-> O projeto está em desenvolvimento. Ainda não funcional.
-
 <p align="center">
   <a>
     <img src="./assets/equilibrium_logo.png" alt="Equilibrium" width="500px"/>
@@ -20,23 +17,32 @@
 
 ---
 
-## Sobre a Equilibrium
+## Sobre
 
-**Equilibrium** é um motor de processamento de eventos de alta performance focado na gestão e rebalanceamento dinâmico de carteiras de ativos. O sistema monitora oscilações do mercado em tempo real e calcula automaticamente o desvio *(drift)* em relação às metas de alocação de cada investidor, sugerindo ou executando ajustes para manter a estratégia do portfólio intacta. Construído com uma arquitetura de microsserviços orientada a eventos, o projeto demonstra como lidar com fluxos massivos de dados financeiros garantindo consistência, baixa latência e escalabilidade na nuvem.
+Equilibrium é um motor de processamento de eventos de alta performance focado na gestão e rebalanceamento dinâmico de carteiras de ativos. O sistema monitora oscilações do mercado em tempo real e calcula automaticamente o desvio (drift) em relação às metas de alocação de cada investidor, sugerindo ou executando ajustes para manter a estratégia do portfólio intacta.
 
-No mercado financeiro, a volatilidade dos ativos faz com que uma carteira perca sua diversificação planejada em questão de minutos. O rebalanceamento manual é lento e sujeito a erros. O **Equilibrium** automatiza esse processo através de um pipeline de dados reativo que identifica desvios e reage instantaneamente a cada mudança de preço.
+Diferente de sistemas tradicionais que rodam rotinas noturnas (batch jobs) para verificar carteiras de investimento, o Equilibrium opera em tempo real. Ele ingere um fluxo contínuo de dados de mercado (cotações de ativos) e, milissegundo a milissegundo, recalcula a exposição de risco de cada cliente. Se a carteira desviar (drift) da estratégia definida, o sistema dispara instantaneamente um evento de rebalanceamento.
 
-## Equilibrium API
+## Stack
 
-API desenvolvida para orquestrar um **pipeline de dados financeiros orientado a eventos (EDA)**. Utilizando GraphQL e Apache Kafka, o sistema ingere streams de cotações de mercado, processa cálculos matemáticos de risco de forma assíncrona e entrega atualizações de estado via WebSockets, garantindo alta disponibilidade e consistência eventual.
+- **Runtime**: Node.js 24 LTS
+- **API**: GraphQL (Apollo Server)
+- **Message Queue**: Redis + BullMQ
+- **Database**: PostgreSQL + Prisma
+- **Container**: Docker + Docker Compose
 
-## Arquitetura: Event Sourcing + CQRS
+## Arquitetura
 
-O sistema é projetado em torno dos padrões **Event Sourcing** e **CQRS**. A camada de ingestão utiliza um produtor Node.js que transmite dados de mercado em tempo real para tópicos Kafka, capturando cada mudança de preço como um evento imutável. Workers consumidores processam o drift da carteira, e quando o desvio excede o limiar definido, um evento `RebalanceTriggered` é emitido, acionando a cadeia de rebalanceamento. A interface é servida por Apollo Server (GraphQL) com WebSockets, permitindo atualizações em tempo real ao cliente no momento exato em que um drift é detectado, sem necessidade de polling.
+O sistema utiliza uma arquitetura orientada a eventos:
 
-## A Lógica de Drift
+1. **Ingestão**: Eventos de preço são enviados para uma fila BullMQ
+2. **Processamento**: Workers consomem os eventos e calculam o drift de cada portfólio
+3. **API**: GraphQL expõe queries e mutations para gestão de portfólios, posições e estratégias
+4. **Persistência**: PostgreSQL armazena portfólios, posições, estratégias e histórico de preços
 
-O motor calcula o peso real $W$ de um ativo $i$ em relação ao valor total da carteira $V_{total}$ para identificar o ajuste necessário:
+### Lógica de Drift
+
+O motor calcula o peso real de um ativo em relação ao valor total da carteira:
 
 $$W_{\text{real}} = \frac{\text{Quantidade}_i \times \text{Preço}_i}{\sum_{j=1}^{n} (\text{Quantidade}_j \times \text{Preço}_j)}$$
 
@@ -44,12 +50,163 @@ Se $|W_{\text{alvo}} - W_{\text{real}}| > \delta$, onde $\delta$ é o limiar def
 
 ## Funcionalidades
 
-O sistema é projetado com uma arquitetura modular para suportar um conjunto robusto de funcionalidades atuais e futuras.
+- **Gestão de Portfólio**: Criação e administração de portfólios de investimento
+- **Definição de Estratégia**: Configuração de alocação alvo por ativo (ex: 30% AAPL, 20% GOOGL)
+- **Monitoramento de Preços em Tempo Real**: Ingestão de preços via fila BullMQ
+- **Detecção de Drift**: Cálculo automático de desvio entre alocação real e alvo
+- **Histórico de Preços**: Armazenamento e consulta de preços históricos
 
-- **Interface Web**: Desenvolvimento de um dashboard em **React** para permitir a visualização de portfólios, o monitoramento de desvios de estratégia *(drifts)* e a interação com o motor de rebalanceamento.
+## Quick Start
 
-- **CLI *(Command-Line Interface)***: Criação de uma ferramenta de linha de comando para permitir a interação programática com o sistema, incluindo a gestão de portfólios, configuração de estratégias e consulta de dados de mercado.
+### Pré-requisitos
 
-- **Motor de Execução de Ordens**: Implementação de um módulo de integração com as APIs de corretoras *(brokers)* para a execução automatizada das ordens de compra e venda recomendadas.
+- Node.js 24 LTS
+- Docker e Docker Compose
+- Yarn
 
-- **Módulo de *Backtesting***: Construção de um serviço para a simulação e validação de estratégias de rebalanceamento, utilizando para isso dados de mercado históricos.
+### Executando com Docker
+
+```bash
+# Subir serviços (PostgreSQL + Redis)
+docker-compose up -d
+
+# Instalar dependências
+cd backend
+yarn install
+
+# Gerar cliente Prisma e criar tabelas
+yarn prisma generate
+yarn prisma db push
+
+# Iniciar servidor de desenvolvimento
+yarn dev
+```
+
+A API estará disponível em `http://localhost:4000/graphql`
+
+### Variáveis de Ambiente
+
+Crie um arquivo `.env` em `backend/.env`:
+
+```
+PORT=4000
+REDIS_HOST=localhost
+REDIS_PORT=6379
+DATABASE_URL="postgresql://admin:password@localhost:5432/equilibrium_db?schema=public"
+```
+
+## GraphQL API
+
+<details>
+<summary>Clique para expandir</summary>
+
+### Queries
+
+```graphql
+# Listar todos os portfólios
+query {
+  portfolios {
+    id
+    name
+    clientId
+    threshold
+    positions {
+      asset
+      quantity
+    }
+    strategies {
+      asset
+      targetWeight
+    }
+  }
+}
+
+# Buscar portfólio por ID
+query {
+  portfolio(id: "uuid-aqui") {
+    id
+    name
+    threshold
+  }
+}
+
+# Histórico de preços de um ativo
+query {
+  priceHistory(asset: "AAPL", limit: 10) {
+    price
+    timestamp
+  }
+}
+
+# Último preço de um ativo
+query {
+  latestPrice(asset: "AAPL") {
+    price
+    timestamp
+  }
+}
+```
+
+### Mutations
+
+```graphql
+# Criar portfólio
+mutation {
+  createPortfolio(input: {
+    name: "Meu Portfólio"
+    clientId: "client-001"
+    threshold: 0.05
+  }) {
+    id
+    name
+    threshold
+  }
+}
+
+# Adicionar posição
+mutation {
+  addPosition(input: {
+    portfolioId: "uuid-aqui"
+    asset: "AAPL"
+    quantity: 100
+  }) {
+    id
+    asset
+    quantity
+  }
+}
+
+# Definir estratégia (alocação alvo)
+mutation {
+  setStrategy(input: {
+    portfolioId: "uuid-aqui"
+    asset: "AAPL"
+    targetWeight: 0.3
+  }) {
+    id
+    asset
+    targetWeight
+  }
+}
+```
+
+### Enviando Eventos de Preço
+
+```javascript
+const { addPriceEvent } = require('./dist/queue/producer');
+
+await addPriceEvent({
+  asset: 'AAPL',
+  price: 180.50,
+  timestamp: Date.now()
+});
+```
+
+</details>
+
+## Funcionalidades Futuras
+
+- Interface Web em React para visualização de portfólios e monitoramentos de drifts
+- CLI para interação programática
+- Módulo de execução de ordens (integração com brokers)
+- Módulo de backtesting
