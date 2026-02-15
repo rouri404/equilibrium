@@ -5,23 +5,31 @@ import { useLang } from "@/hooks/useLang";
 const lines = {
   en: [
     { prefix: "[EQ-CORE]", text: " Initializing event stream...", delay: 0 },
-    { prefix: "[EQ-CORE]", text: " Connected to BullMQ (Redis cluster)", delay: 1500 },
-    { prefix: "[EQ-CORE]", text: " DRIFT_DETECTED...", delay: 3000, highlight: true },
-    { prefix: "[EQ-CORE]", text: " Portfolio drift: 4.2% (threshold: 3%)", delay: 4500 },
-    { prefix: "[EQ-CORE]", text: " Rebalance Triggered: SELL 0.4 BTC @ $67,432", delay: 6000 },
-    { prefix: "[EQ-CORE]", text: " Rebalance Triggered: BUY 12.5 ETH @ $3,891", delay: 7200 },
-    { prefix: "[EQ-API] ", text: " Broadcasting to WebSocket...", delay: 8400 },
-    { prefix: "[EQ-API] ", text: " 47 clients notified ✓", delay: 9200 },
+    { prefix: "[EQ-CORE]", text: " Connected to BullMQ (Redis)", delay: 1500 },
+    { prefix: "[EQ-CORE]", text: " BullMQ workers: 5 active", delay: 2500 },
+    { prefix: "[EQ-API] ", text: " GraphQL server ready", delay: 3500 },
+    { prefix: "[EQ-API] ", text: " WebSocket subscriptions enabled", delay: 4500 },
+    { prefix: "[EQ-FE]  ", text: " Frontend UI loaded", delay: 5500 },
+    { prefix: "[EQ-CORE]", text: " DRIFT_DETECTED...", delay: 6500, highlight: true },
+    { prefix: "[EQ-CORE]", text: " Portfolio drift: 4.2% (threshold: 3%)", delay: 7500 },
+    { prefix: "[EQ-CORE]", text: " Rebalance: SELL 0.4 BTC @ $67,432", delay: 8500 },
+    { prefix: "[EQ-CORE]", text: " Rebalance: BUY 12.5 ETH @ $3,891", delay: 9500 },
+    { prefix: "[EQ-API] ", text: " Broadcasting state update...", delay: 10500 },
+    { prefix: "[EQ-API] ", text: " 47 clients notified ✓", delay: 11500 },
   ],
   pt: [
     { prefix: "[EQ-CORE]", text: " Inicializando stream de eventos...", delay: 0 },
-    { prefix: "[EQ-CORE]", text: " Conectado ao BullMQ (cluster Redis)", delay: 1500 },
-    { prefix: "[EQ-CORE]", text: " DRIFT_DETECTADO...", delay: 3000, highlight: true },
-    { prefix: "[EQ-CORE]", text: " Drift do portfólio: 4.2% (limite: 3%)", delay: 4500 },
-    { prefix: "[EQ-CORE]", text: " Rebalanceamento acionado: VENDER 0.4 BTC @ $67,432", delay: 6000 },
-    { prefix: "[EQ-CORE]", text: " Rebalanceamento acionado: COMPRAR 12.5 ETH @ $3,891", delay: 7200 },
-    { prefix: "[EQ-API] ", text: " Transmitindo via WebSocket...", delay: 8400 },
-    { prefix: "[EQ-API] ", text: " 47 clientes notificados ✓", delay: 9200 },
+    { prefix: "[EQ-CORE]", text: " Conectado ao BullMQ (Redis)", delay: 1500 },
+    { prefix: "[EQ-CORE]", text: " Workers BullMQ: 5 ativos", delay: 2500 },
+    { prefix: "[EQ-API] ", text: " Servidor GraphQL pronto", delay: 3500 },
+    { prefix: "[EQ-API] ", text: " Subscrições WebSocket habilitadas", delay: 4500 },
+    { prefix: "[EQ-FE]  ", text: " UI do Frontend carregada", delay: 5500 },
+    { prefix: "[EQ-CORE]", text: " DRIFT_DETECTADO...", delay: 6500, highlight: true },
+    { prefix: "[EQ-CORE]", text: " Drift do portfólio: 4.2% (limite: 3%)", delay: 7500 },
+    { prefix: "[EQ-CORE]", text: " Rebalance: VENDER 0.4 BTC @ $67,432", delay: 8500 },
+    { prefix: "[EQ-CORE]", text: " Rebalance: COMPRAR 12.5 ETH @ $3,891", delay: 9500 },
+    { prefix: "[EQ-API] ", text: " Transmitindo atualização de estado...", delay: 10500 },
+    { prefix: "[EQ-API] ", text: " 47 clientes notificados ✓", delay: 11500 },
   ],
 };
 
@@ -44,7 +52,7 @@ const TerminalSection = () => {
         });
       }, 500);
       return () => clearTimeout(restart);
-    }, 12000);
+    }, 15000);
 
     return () => {
       timers.forEach(clearTimeout);
@@ -70,7 +78,7 @@ const TerminalSection = () => {
         </div>
 
         {/* Terminal body */}
-        <div className="p-6 min-h-[280px] font-mono text-sm space-y-1">
+        <div className="p-6 min-h-[320px] font-mono text-sm space-y-1">
           {currentLines.slice(0, visibleLines).map((line, i) => (
             <div key={i} className="flex">
               <span className="text-primary">{line.prefix}</span>

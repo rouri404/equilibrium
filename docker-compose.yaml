@@ -21,6 +21,15 @@ services:
     volumes:
       - redis-data:/data
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: eq-frontend
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
 volumes:
   pgdata:
   redis-data:
