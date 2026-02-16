@@ -72,7 +72,7 @@ const WireframeCube = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="absolute inset-0" style={{ background: "#030712" }}>
+    <div ref={containerRef} className="absolute inset-0" style={{ background: "linear-gradient(180deg, #030b10 0%, #081a1a 100%)" }}>
       <div className="cube-container">
         <div className="cube">
           <div className="face front" />

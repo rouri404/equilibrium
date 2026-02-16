@@ -1,56 +1,134 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Activity, BarChart3, Container, Radio } from "lucide-react";
 import { useLang } from "@/hooks/useLang";
+import { Zap, TrendingUp, Shield, Activity, GitBranch, Server, Database, Container } from "lucide-react";
 
 const features = {
   en: [
     {
+      title: "Event-Driven",
+      desc: "Real-time event processing with BullMQ and Redis for ingesting millions of events per second.",
+      icon: GitBranch,
+    },
+    {
+      title: "Drift Detection",
+      desc: "Precise calculation of deviation between target and actual allocation with configurable thresholds.",
+      icon: TrendingUp,
+    },
+    {
+      title: "GraphQL API",
+      desc: "Complete GraphQL API for managing portfolios, positions, strategies and price history.",
       icon: Activity,
-      title: "BullMQ Queue",
-      desc: "Ingest millions of price events per second with fault-tolerant stream processing.",
     },
     {
-      icon: BarChart3,
-      title: "Drift Calculation",
-      desc: "Precision rebalancing logic with configurable drift thresholds and constraints.",
+      title: "Real-time WebSocket",
+      desc: "Real-time portfolio state broadcast to all connected clients.",
+      icon: Zap,
     },
     {
+      title: "Portfolio Management",
+      desc: "Creation and administration of multiple portfolios with custom allocation strategies.",
+      icon: Server,
+    },
+    {
+      title: "Docker Ready",
+      desc: "Fully containerized infrastructure with Docker Compose. Spin up everything with one command.",
       icon: Container,
-      title: "Infrastructure as Code",
-      desc: "Deploy the entire stack with Terraform and Docker. One command.",
-    },
-    {
-      icon: Radio,
-      title: "WebSocket API",
-      desc: "Real-time broadcast of portfolio state to all connected clients.",
     },
   ],
   pt: [
     {
+      title: "Orientado a Eventos",
+      desc: "Processamento de eventos em tempo real com BullMQ e Redis para ingestão de milhões de eventos por segundo.",
+      icon: GitBranch,
+    },
+    {
+      title: "Detecção de Drift",
+      desc: "Cálculo preciso do desvio entre alocação alvo e real com thresholds configuráveis.",
+      icon: TrendingUp,
+    },
+    {
+      title: "API GraphQL",
+      desc: "API GraphQL completa para gestão de portfólios, posições, estratégias e histórico de preços.",
       icon: Activity,
-      title: "Fila BullMQ",
-      desc: "Ingestão de milhões de eventos de preço por segundo com processamento de stream tolerante a falhas.",
     },
     {
-      icon: BarChart3,
-      title: "Cálculo de Drift",
-      desc: "Lógica de rebalanceamento de precisão com thresholds e restrições de drift configuráveis.",
-    },
-    {
-      icon: Container,
-      title: "Infraestrutura como Código",
-      desc: "Implante toda a stack com Terraform e Docker. Um comando.",
-    },
-    {
-      icon: Radio,
-      title: "API WebSocket",
+      title: "WebSocket em Tempo Real",
       desc: "Transmissão em tempo real do estado do portfólio para todos os clientes conectados.",
+      icon: Zap,
+    },
+    {
+      title: "Gestão de Portfólio",
+      desc: "Criação e administração de múltiplos portfólios com estratégias de alocação personalizadas.",
+      icon: Server,
+    },
+    {
+      title: "Pronto para Docker",
+      desc: "Infraestrutura completa containerizada com Docker Compose. Suba tudo com um comando.",
+      icon: Container,
     },
   ],
 };
 
-const SpotlightCard = ({ icon: Icon, title, desc }: { icon: React.ElementType; title: string; desc: string }) => {
+const techLogos = [
+  { 
+    name: "Node.js", 
+    color: "#339933",
+    svg: (
+      <svg viewBox="0 0 16 16" className="w-8 h-8">
+        <path d="M7.997 15.84c-.209 0-.42-.056-.604-.162l-1.92-1.136c-.286-.162-.146-.218-.053-.249.383-.134.461-.162.868-.395.044-.025.1-.016.143.012l1.475.874c.053.031.128.031.178 0l5.747-3.317c.053-.031.087-.093.087-.156V4.68c0-.065-.034-.124-.09-.159L8.084 1.207c-.053-.031-.124-.031-.178 0L2.166 4.524c-.056.031-.09.093-.09.159v6.63c0 .062.034.124.09.152l1.575.909c.856.426 1.378-.075 1.378-.582v-6.546c0-.093.075-.165.168-.165h.728c.09 0 .168.072.168.165v6.55c0 1.139-.622 1.792-1.702 1.792-.333 0-.594 0-1.322-.361l-1.506-.868c-.373-.215-.604-.616-.604-1.049V4.68c0-.429.23-.834.604-1.049l5.74-3.317c.364-.205.846-.205 1.208 0l5.747 3.32c.373.215.604.616.604 1.049v6.63c0 .429-.23.831-.604 1.049l-5.747 3.317c-.184.106-.392.162-.604.162zM12.635 9.303c0-1.241-.84-1.571-2.604-1.805-1.786-.236-1.966-.358-1.966-.775 0-.345.152-.806 1.475-.806 1.179 0 1.615.255 1.795 1.052.016.075.084.131.162.131h.747c.047 0 .09-.019.121-.053s.047-.081.044-.128c-.115-1.372-1.027-2.01-2.87-2.01-1.64 0-2.617.691-2.617 1.851 0 1.258.974 1.605 2.545 1.761 1.882.184 2.029.46 2.029.831 0 .641-.517.915-1.727.915-1.521 0-1.854-.383-1.966-1.139-.013-.081-.081-.14-.165-.14h-.744c-.093 0-.165.075-.165.165 0 .968.526 2.122 3.043 2.122 1.817 0 2.863-.722 2.863-1.973z" fill="#fff"/>
+      </svg>
+    )
+  },
+  { 
+    name: "GraphQL", 
+    color: "#e535ab",
+    svg: (
+      <svg viewBox="0 0 24 24" className="w-9 h-9" fill="none">
+        <path d="M12.002 0a2.138 2.138 0 1 0 0 4.277 2.138 2.138 0 1 0 0 -4.277zm8.54 4.931a2.138 2.138 0 1 0 0 4.277 2.138 2.138 0 1 0 0 -4.277zm0 9.862a2.138 2.138 0 1 0 0 4.277 2.138 2.138 0 1 0 0 -4.277zm-8.54 4.931a2.138 2.138 0 1 0 0 4.276 2.138 2.138 0 1 0 0 -4.276zm-8.542 -4.93a2.138 2.138 0 1 0 0 4.276 2.138 2.138 0 1 0 0 -4.277zm0 -9.863a2.138 2.138 0 1 0 0 4.277 2.138 2.138 0 1 0 0 -4.277zm8.542 -3.378L2.953 6.777v10.448l9.049 5.224 9.047 -5.224V6.777zm0 1.601 7.66 13.27H4.34zm-1.387 0.371L3.97 15.037V7.363zm2.774 0 6.646 3.838v7.674zM5.355 17.44h13.293l-6.646 3.836z" fill="#fff"/>
+      </svg>
+    )
+  },
+  { 
+    name: "Redis", 
+    color: "#dc382d",
+    svg: (
+      <svg viewBox="0 0 32 32" className="w-9 h-9" fill="none">
+        <path d="M31.99 19.12c-0.010 0.307-0.417 0.646-1.245 1.078-1.708 0.891-10.552 4.531-12.438 5.51-1.885 0.984-2.927 0.974-4.417 0.26-1.49-0.708-10.901-4.516-12.599-5.323-0.844-0.406-1.276-0.745-1.292-1.068v3.234c0 0.323 0.448 0.661 1.292 1.068 1.698 0.813 11.115 4.615 12.599 5.323 1.49 0.714 2.531 0.724 4.417-0.26 1.885-0.979 10.729-4.62 12.438-5.51 0.87-0.448 1.255-0.802 1.255-1.12 0-0.302 0-3.188 0-3.188 0-0.005-0.005-0.005-0.010-0.005zM31.99 13.849c-0.016 0.302-0.417 0.641-1.245 1.078-1.708 0.885-10.552 4.526-12.438 5.505-1.885 0.984-2.927 0.974-4.417 0.266-1.49-0.714-10.901-4.516-12.599-5.328-0.844-0.401-1.276-0.745-1.292-1.068v3.234c0 0.323 0.448 0.667 1.292 1.068 1.698 0.813 11.109 4.615 12.599 5.328 1.49 0.708 2.531 0.719 4.417-0.26 1.885-0.984 10.729-4.62 12.438-5.51 0.87-0.453 1.255-0.807 1.255-1.125 0-0.302 0-3.188 0-3.188s-0.005 0-0.010 0zM31.99 8.375c0.016-0.323-0.406-0.609-1.266-0.922-1.661-0.609-10.458-4.109-12.141-4.729-1.682-0.615-2.37-0.589-4.349 0.12-1.979 0.714-11.339 4.385-13.005 5.036-0.833 0.328-1.24 0.63-1.224 0.953v3.234c0 0.323 0.443 0.661 1.292 1.068 1.693 0.813 11.109 4.615 12.599 5.328 1.484 0.708 2.531 0.719 4.417-0.266 1.88-0.979 10.729-4.62 12.438-5.505 0.865-0.453 1.25-0.807 1.25-1.125 0-0.302 0-3.193 0-3.193zM11.458 11.438l7.417-1.135-2.24 3.281zM27.859 8.479l-4.859 1.922-4.385-1.734 4.854-1.917zM14.984 5.302l-0.719-1.323 2.24 0.875 2.109-0.688-0.573 1.365 2.151 0.807-2.771 0.286-0.625 1.495-1-1.667-3.203-0.286zM9.458 7.172c2.193 0 3.964 0.688 3.964 1.531 0 0.849-1.776 1.536-3.964 1.536s-3.964-0.688-3.964-1.536c0-0.844 1.776-1.531 3.964-1.531z" fill="#fff"/>
+      </svg>
+    )
+  },
+  { 
+    name: "PostgreSQL", 
+    color: "#336791",
+    svg: (
+      <svg viewBox="0 0 494 512" className="w-9 h-9" fill="none">
+        <path d="M146.7527313,366.3258057c-5.5221863-5.2129211-5.3074951-14.8519287,0.9339447-19.3165894c10.8200226-8.1776428,25.1935883-7.5398254,37.4714508-12.2778625c9.1115875-2.6651611,13.826828-11.5261841,19.5443726-18.3143311c-10.569458-0.7972412-20.9111023-3.4851685-30.432724-8.1548767l-31.7292938,35.4086304c-39.7887955,54.9191284-76.8305283,30.7643738-111.2544327-71.7183533C-3.1595266,169.4051514-16.0862827,79.8565369,28.6973038,35.0729485c33.02425-33.02425,88.6338043-37.3339539,164.684021-11.8670998c27.9498138-18.6559849,63.4850311-21.2300205,95.7173004-14.6924458c2.8701477,0.364459,5.763092,1.6856422,8.7015991,1.0933876c93.1631165-31.0753632,193.736969,17.9606476,193.0519104,79.4986801c-0.6009216,53.9822998-23.2562256,136.6217804-74.6694946,217.0610046c31.0770569,13.0919189,62.5948486-9.4208069,75.0795593,3.6902161c13.2698059,19.8475952-44.3627014,57.6689148-102.4371338,46.2186279c-11.2048645,75.4554443-7.8264465,114.3428955-33.0295715,136.2183533c-38.5529785,28.969635-104.6014709,33.63974-114.0771484-39.2709961c-3.4168701-30.2277832-3.5535278-60.7060242-3.4624176-91.0932007C206.0384979,390.362854,160.1945953,379.0148621,146.7527313,366.3258057z M417.640564,138.6497955c0.1822205,20.5694275-6.8564453,40.6377258-4.7608032,61.2527008c2.0045471,21.845047,6.696991,44.1912384,1.1389465,65.8996277c-1.5717773,7.6992798-5.6036377,14.532959-8.3599243,21.7766724c0.2049866,1.0478821,0.6150208,3.1435242,0.8200378,4.1685791c43.1943054-64.3665314,86.5875244-187.8814697,61.6399536-229.6349792c-32.7996521-39.5367661-81.1583862-55.310215-144.1225891-43.3484192C375.2851562,42.4116707,418.3167725,104.6240234,417.640564,138.6497955z M352.8343201,179.5381165c7.0819092,34.1408844,26.8792114,63.4622345,42.3005676,94.1455383c11.5033875-23.1434174,4.7523193-49.3648529,2.6537781-73.7355804c-1.6987915-19.7279816,4.06604-38.9065247,4.6810913-58.4736633C364.4275208,136.7502594,346.2983093,148.0288086,352.8343201,179.5381165z M75.4545822,334.5263062c6.1503372,9.0432739,13.1662521,19.1116028,24.1912918,22.3006592c9.4304886,1.9362183,16.9698257-5.7535706,22.4259109-12.3348389c12.7148972-15.3369751,26.2300186-29.8974304,39.1684799-45.022644c-18.9976807-17.2664795-29.2710114-43.5762177-25.8085938-69.1570129c2.7562408-19.5899353,3.2801666-39.4304504,2.072876-59.1798248c-1.5311584-58.2961426,11.0045319-105.1199036,42.0955658-136.8106079C82.0088501,5.2753301,5.3919578,22.000246,15.7508392,140.7454681C25.4711342,211.6944885,45.3074837,276.3286438,75.4545822,334.5263062z M152.3564301,159.9709778c0.3189087,16.4236298,1.4806213,32.8700714,0.3644562,49.2937164c-0.4783478,14.5102234-4.4659424,29.041687-1.4806213,43.587616c5.2401886,25.5326385,27.6536865,48.3939362,54.5784607,48.1206207c3.9407501-12.9156799,8.5193329-25.6491394,14.1685181-37.9497986c16.1958771-31.8677979,13.5762939-69.3164673,5.1252747-102.9610291C217.2107391,132.2693329,176.4307861,143.777771,152.3564301,159.9709778z M223.8824615,319.4466248c-10.5239105,6.8564758-14.9885712,20.1821594-26.241394,26.241394c-11.6400757,6.8792725-25.7402649,6.4464417-37.7903595,12.0273132c24.441864,12.4601135,58.2800598,8.0751343,75.1820679-14.817749C243.688797,334.8566284,235.3403015,317.8293457,223.8824615,319.4466248z M472.4467773,321.9978943c-20.8427429,2.5284729-43.6217346,7.5625916-63.2117004-2.7562561c-4.6013489-3.2118225-10.2733154-0.5011292-14.259613,2.4373474c-5.0341797,4.6697083-4.6924744,12.0956421-4.7380371,18.3598633c11.0705872,3.8041077,23.0067749,3.3940735,34.4873657,2.0273438C442.0823669,340.1755371,459.7133179,334.389679,472.4467773,321.9978943z M364.531311,151.9299469c-4.0774536,3.3485107,0.3302917,8.3598938,3.8382568,9.9316406c8.4965515,4.9886017,20.1366272-1.9817657,20.4099731-11.6856384C381.1030273,146.5996704,371.4789124,146.9641418,364.531311,151.9299469z M214.144455,167.4196777c3.6218719-2.0501251,7.4600983-7.6765289,3.2687683-11.0706024c-5.9680939-4.8519287-14.6468811-5.7858429-21.9133759-3.8268738c-2.3462372,0.8200531-4.8063812,2.4145813-4.3280029,5.2847443C192.8574982,167.5563507,205.9212341,173.4788818,214.144455,167.4196777z M349.3035583,136.5997009c14.0545959-12.0728531,33.7584229-11.3667221,51.1387939-10.7516785c-10.4555359-29.5671387-29.8632812-55.8540726-54.4190063-75.2617798c-29.726593-23.394022-68.9975891-33.6901283-106.4006653-28.9293156c-22.6650848,2.9384937-43.8951111,15.1935902-57.5852814,33.5534515c-18.6104126,24.6696472-26.7425232,55.7857513-29.1115417,86.172905c43.6054993-21.125946,77.5613708-18.2240067,87.4713287,16.8792572c6.1047516,26.8791809,9.4076996,55.2162476,3.439621,82.4371338c-4.6013489,22.0044861-18.0181885,41.0249329-22.460083,63.0522461c24.8024292,0.4226685,32.7540588,19.0907898,32.4372711,33.2801208c-1.7334442,49.3424683-0.1509247,92.1112366,5.3986511,127.015625c6.2220764,24.7672119,26.1006165,34.2348022,41.1841736,32.8644409c35.8913574-3.2607727,54.9837646-14.0654602,61.2984924-49.9031372c16.2584839-102.4587402,11.0046082-120.4719849,18.2915955-130.8424988l0.0454712,0.0227661c3.6674194-6.6286621,10.8656006-9.7494202,17.3120422-13.0068054C381.6231384,279.0854797,308.9030762,171.6732635,349.3035583,136.5997009z" fill="#fff"/>
+      </svg>
+    )
+  },
+  { 
+    name: "Prisma", 
+    color: "#2d3748",
+    svg: (
+      <svg viewBox="0 0 24 24" className="w-9 h-9" fill="none">
+        <path d="M21.8068 18.2848 13.5528 0.7565c-0.207 -0.4382 -0.639 -0.7273 -1.1286 -0.7541 -0.5023 -0.0293 -0.9523 0.213 -1.2062 0.6253L2.266 15.1271c-0.2773 0.4518 -0.2718 1.0091 0.0158 1.4555l4.3759 6.7786c0.2608 0.4046 0.7127 0.6388 1.1823 0.6388 0.1332 0 0.267 -0.0188 0.3987 -0.0577l12.7019 -3.7568c0.3891 -0.1151 0.7072 -0.3904 0.8737 -0.7553s0.1633 -0.7828 -0.0075 -1.1454zm-1.8481 0.7519L9.1814 22.2242c-0.3292 0.0975 -0.6448 -0.1873 -0.5756 -0.5194l3.8501 -18.4386c0.072 -0.3448 0.5486 -0.3996 0.699 -0.0803l7.1288 15.138c0.1344 0.2856 -0.019 0.6224 -0.325 0.7128z" fill="#fff"/>
+      </svg>
+    )
+  },
+  { 
+    name: "Docker", 
+    color: "#2496ed",
+    svg: (
+      <svg viewBox="0 0 24 24" className="w-8 h-8">
+        <path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.186m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.185-.186h-2.12a.186.186 0 00-.185.185v1.888c0 .102.084.185.186.185m-2.964 0h2.119a.186.186 0 00.185-.185V9.006a.185.185 0 00-.185-.186h-2.12a.186.186 0 00-.185.185v1.888c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185z" fill="#fff"/>
+        <path d="M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288z" fill="#fff"/>
+      </svg>
+    )
+  },
+];
+
+const SpotlightCard = ({ title, desc, icon: Icon, index }: { title: string; desc: string; icon: React.ElementType; index: number }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [hovering, setHovering] = useState(false);
@@ -70,14 +148,14 @@ const SpotlightCard = ({ icon: Icon, title, desc }: { icon: React.ElementType; t
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.6 }}
-      className="relative rounded-xl border border-border bg-card p-8 overflow-hidden group"
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="relative rounded-xl border border-border bg-card p-6 overflow-hidden group cursor-pointer"
     >
       {hovering && (
         <div
           className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300"
           style={{
-            background: `radial-gradient(400px circle at ${pos.x}px ${pos.y}px, hsl(174 83% 50% / 0.12), transparent 70%)`,
+            background: `radial-gradient(400px circle at ${pos.x}px ${pos.y}px, hsl(174 83% 50% / 0.15), transparent 70%)`,
           }}
         />
       )}
@@ -92,8 +170,23 @@ const SpotlightCard = ({ icon: Icon, title, desc }: { icon: React.ElementType; t
         />
       )}
       <div className="relative z-10">
-        <Icon className="h-8 w-8 text-primary mb-4" />
-        <h3 className="text-foreground font-bold text-lg mb-2">{title}</h3>
+        <div className="flex items-start justify-between mb-4">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <Icon className="w-6 h-6 text-primary" />
+          </div>
+          {hovering && (
+            <motion.span
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-primary"
+            >
+              →
+            </motion.span>
+          )}
+        </div>
+        <h3 className="text-foreground font-bold text-lg mb-2 group-hover:text-primary transition-colors">
+          {title}
+        </h3>
         <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
       </div>
     </motion.div>
@@ -105,21 +198,68 @@ const FeatureGrid = () => {
   const currentFeatures = features[lang];
 
   return (
-    <section className="max-w-6xl mx-auto px-6 py-24">
-      <motion.h2
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        className="text-2xl md:text-3xl font-bold text-foreground text-center mb-16"
-      >
-        {"// CORE_MODULES"}
-      </motion.h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {currentFeatures.map((f) => (
-          <SpotlightCard key={f.title} {...f} />
-        ))}
-      </div>
-    </section>
+    <>
+      <section className="max-w-6xl mx-auto px-6 py-24">
+        <motion.h2
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-2xl md:text-3xl font-bold text-foreground text-center mb-4"
+        >
+          {"// CORE_FEATURES"}
+        </motion.h2>
+        <p className="text-muted-foreground text-center mb-16 max-w-2xl mx-auto">
+          {lang === "en"
+            ? "Everything you need to manage portfolios in real-time with precision and performance."
+            : "Tudo o que você precisa para gerenciar portfólios em tempo real com precisão e performance."}
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {currentFeatures.map((f, i) => (
+            <SpotlightCard key={f.title} {...f} index={i} />
+          ))}
+        </div>
+      </section>
+
+      <section className="border-t border-border/50">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <motion.h2
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-xl md:text-2xl font-bold text-foreground text-center mb-4"
+          >
+            {"// TECH_STACK"}
+          </motion.h2>
+          <p className="text-muted-foreground text-center mb-12">
+            {lang === "en"
+              ? "Built with modern and battle-tested technologies"
+              : "Construído com tecnologias modernas e testadas em produção"}
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            {techLogos.map((tech, i) => (
+              <motion.div
+                key={tech.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-card/50 hover:bg-card hover:border-primary/50 transition-all cursor-default group"
+              >
+                <div
+                  className="w-12 h-12 rounded-lg flex items-center justify-center p-1"
+                  style={{ background: tech.color }}
+                >
+                  {tech.svg}
+                </div>
+                <span className="text-foreground font-medium group-hover:text-primary transition-colors">
+                  {tech.name}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 };
 
