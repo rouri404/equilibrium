@@ -3,15 +3,18 @@ FROM node:24.13.1-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+COPY yarn.lock ./
+RUN yarn install --frozen-lockfile
 
 COPY prisma ./prisma/
 RUN npx prisma generate
 
 COPY . .
 
-RUN npm run build
+RUN cp .env.docker .env || true
+
+RUN yarn build
 
 EXPOSE 4000
 
-CMD ["npm", "start"]
+CMD ["yarn", "start"]

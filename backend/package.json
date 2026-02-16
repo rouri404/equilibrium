@@ -1,5 +1,5 @@
 {
-  "name": "equilibrium",
+  "name": "equilibrium-backend",
   "version": "1.0.0",
   "description": "<p align=\"center\">   <a>     <img src=\"./assets/equilibrium_logo.png\" alt=\"Equilibrium\" width=\"500px\"/>   </a> </p>",
   "main": "dist/index.js",

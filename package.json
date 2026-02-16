@@ -1,0 +1,40 @@
+{
+  "name": "equilibrium",
+  "version": "1.0.0",
+  "description": "Automated portfolio rebalancing engine",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "start": "docker-compose up --build",
+    "start:dev": "docker-compose up",
+    "stop": "docker-compose down",
+    "build": "docker-compose build",
+    "dev": "concurrently \"yarn dev:frontend\" \"yarn dev:backend\"",
+    "dev:frontend": "yarn workspace equilibrium-frontend dev",
+    "dev:backend": "yarn workspace equilibrium-backend dev",
+    "build:frontend": "yarn workspace equilibrium-frontend build",
+    "build:backend": "yarn workspace equilibrium-backend build",
+    "migrate": "yarn workspace equilibrium-backend prisma migrate dev",
+    "migrate:deploy": "yarn workspace equilibrium-backend prisma migrate deploy",
+    "migrate:reset": "yarn workspace equilibrium-backend prisma migrate reset",
+    "migrate:status": "yarn workspace equilibrium-backend prisma migrate status",
+    "db:push": "yarn workspace equilibrium-backend prisma db push",
+    "db:generate": "yarn workspace equilibrium-backend prisma generate",
+    "db:studio": "yarn workspace equilibrium-backend prisma studio",
+    "docker:postgres": "docker-compose up -d postgres",
+    "docker:redis": "docker-compose up -d redis",
+    "docker:frontend": "docker-compose up -d frontend",
+    "docker:backend": "docker-compose up -d backend",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v --rmi local",
+    "lint": "yarn workspaces foreach -p run lint",
+    "clean": "yarn workspaces foreach run clean"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "packageManager": "yarn@1.22.22"
+}

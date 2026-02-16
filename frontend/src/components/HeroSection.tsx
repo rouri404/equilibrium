@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import WireframeCube from "./WireframeCube";
 import { useLang } from "@/hooks/useLang";
 
@@ -103,6 +104,16 @@ const HeroSection = () => {
           >
             {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
           </button>
+        </div>
+
+        <div className="mt-8">
+          <Link
+            to="/app"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-[#030712] font-medium rounded-lg hover:bg-primary/90 transition-all hover:scale-105 hover:shadow-[0_0_20px_hsl(174_83%_50%/0.4)]"
+          >
+            Open Dashboard
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </section>
